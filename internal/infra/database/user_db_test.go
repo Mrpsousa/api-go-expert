@@ -10,8 +10,16 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestCreateUser(t *testing.T) {
+func returnDBInstance() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func TestCreateUser(t *testing.T) {
+	db, err := returnDBInstance()
 	if err != nil {
 		t.Error(err)
 	}
@@ -32,7 +40,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestFindByEmail(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	db, err := returnDBInstance()
 	if err != nil {
 		t.Error(err)
 	}
