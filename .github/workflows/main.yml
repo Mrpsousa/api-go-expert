@@ -15,7 +15,7 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: 
+          tags: |
             mrpsousa/api-go-expert:v1
             mrpsousa/api-go-expert:latest
     
