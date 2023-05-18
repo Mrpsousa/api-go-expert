@@ -9,15 +9,35 @@ import (
 	"github.com/go-chi/jwtauth"
 
 	"github.com/mrpsousa/api/configs"
+	_ "github.com/mrpsousa/api/docs"
 	"github.com/mrpsousa/api/internal/entity"
 	"github.com/mrpsousa/api/internal/infra/database"
 	"github.com/mrpsousa/api/internal/infra/webserver/handlers"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
+// @title           Go Expert API Example
+// @version         1.0
+// @description     Product API with auhtentication
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   Marcos Rogerio
+// @contact.url    http://www.example.com.br
+// @contact.email  urameshi.uba@gmail.com
+
+// @license.name   Full Cycle License
+// @license.url    http://www.fullcycle.com.br
+
+// @host      localhost:8000
+// @BasePath  /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 func main() {
-	config, err := configs.LoadConfig("../../")
+	config, err := configs.LoadConfig(".")
 	if err != nil {
 		panic(err)
 	}
@@ -55,9 +75,12 @@ func main() {
 		r.Post("/generate_token", userHandler.GetJWT)
 	})
 
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
+
 	http.ListenAndServe(":8000", r)
 }
 
+// TODO:_ move it do a middleware folder
 func LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.Method, r.URL) //send this log to kibana
