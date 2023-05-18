@@ -77,7 +77,7 @@ func (h *UserHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
 	}
 	u, err := h.UserDB.FindByEmail(user.Email)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	if !u.ValidatePassword(user.Password) {
@@ -89,9 +89,7 @@ func (h *UserHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
 		"exp": time.Now().Add(time.Second * time.Duration(h.JwtExpiresIn)).Unix(),
 	})
 
-	accessToken := struct {
-		AccessToken string `json:"access_token"`
-	}{AccessToken: token}
+	accessToken := dto.GetJWTOutput{AccessToken: token}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
