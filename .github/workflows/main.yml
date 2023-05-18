@@ -14,6 +14,8 @@ jobs:
         with:
           username: ${{secrets.DOCKERHUB_USER}}
           password: ${{secrets.DOCKERHUB_PWD}}
+      - name: Run tests
+        run: go test -v ./...
       - name : Docker Image Building
         uses: docker/build-push-action@v4.0.0
         with:
