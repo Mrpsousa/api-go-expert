@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/middleware"
@@ -13,6 +12,7 @@ import (
 	"github.com/mrpsousa/api/internal/entity"
 	"github.com/mrpsousa/api/internal/infra/database"
 	"github.com/mrpsousa/api/internal/infra/webserver/handlers"
+	"github.com/mrpsousa/api/pkg/middlewares"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -58,7 +58,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger) // look the documentation to more diferent chi middleware
 	r.Use(middleware.Recoverer)
-	r.Use(LogRequest)
+	r.Use(middlewares.LogRequest)
 
 	r.Route("/products", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(config.TokenAuth)) // get the token and inject it into the context
@@ -78,12 +78,4 @@ func main() {
 	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
 
 	http.ListenAndServe(":8000", r)
-}
-
-// TODO:_ move it do a middleware folder
-func LogRequest(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.Method, r.URL) //send this log to kibana
-		next.ServeHTTP(w, r)
-	})
 }
