@@ -1,13 +1,16 @@
 package configs
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/go-chi/jwtauth"
 	"github.com/spf13/viper"
 )
 
-var cfg *conf
+var cfg *Conf
 
-type conf struct {
+type Conf struct {
 	DBDriver      string `mapstructure:"DB_DRIVER"`
 	DBHost        string `mapstructure:"DB_HOST"`
 	DBPort        string `mapstructure:"DB_PORT"`
@@ -20,7 +23,7 @@ type conf struct {
 	TokenAuth     *jwtauth.JWTAuth
 }
 
-func LoadConfig(path string) (*conf, error) {
+func LoadConfig(path string) (*Conf, error) {
 	viper.SetConfigName("app_config")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(path)
@@ -37,4 +40,18 @@ func LoadConfig(path string) (*conf, error) {
 	cfg.TokenAuth = jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 
 	return cfg, nil
+}
+
+func NewConfig() *Conf {
+	expires, _ := strconv.Atoi((os.Getenv("JWT_EXPIRESIN")))
+	return &Conf{
+		DBDriver:      os.Getenv("DB_DRIVER"),
+		DBHost:        os.Getenv("DB_HOST"),
+		DBPort:        os.Getenv("DB_PORT"),
+		DBUser:        os.Getenv("DB_USER"),
+		DBPassword:    os.Getenv("DB_PASSWORD"),
+		DBName:        os.Getenv("DB_NAME"),
+		WebServerPort: os.Getenv("WEB_SERVER_PORT"),
+		JWTSecret:     os.Getenv("JWT_SECRET"),
+		JWTExpiresIn:  expires}
 }

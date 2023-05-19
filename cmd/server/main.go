@@ -37,10 +37,12 @@ import (
 // @name Authorization
 
 func main() {
-	config, err := configs.LoadConfig(".")
-	if err != nil {
-		panic(err)
-	}
+	// config, err := configs.LoadConfig(".")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	config := configs.NewConfig()
 
 	// println(config.DBDriver)
 

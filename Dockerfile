@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:latest as builder
 
 WORKDIR /app
 
@@ -6,6 +6,6 @@ COPY . .
 
 EXPOSE 8000
 
-RUN go mod download
+RUN GOOS=linux go build -o server ./cmd/server/
 
-CMD ["go", "run", "cmd/server/main.go"]
+CMD ["./server"]

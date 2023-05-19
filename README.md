@@ -18,3 +18,6 @@
             "password": "123456"
         }
         - POST : http://localhost:8000/users/generate_token
+
+## Docker actions
+    - docker build -t mrpsousa/api-go-expert:latest -f Dockerfile.prod .
