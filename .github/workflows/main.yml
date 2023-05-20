@@ -23,6 +23,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            mrpsousa/api-go-expert:v{{github.run_number}}
+            mrpsousa/api-go-expert:v${{github.run_number}}
             mrpsousa/api-go-expert:latest
     
