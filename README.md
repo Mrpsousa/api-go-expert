@@ -19,5 +19,7 @@
         }
         - POST : http://localhost:8000/users/generate_token
 
-## Docker actions
+## Docker Prod (test)
     - docker build -t mrpsousa/api-go-expert:latest -f Dockerfile.prod .
+    - docker run --rm -p 8000:8000 mrpsousa/api-go-expert:latest
+

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "goserver"
+  labels:
+    app: "goserver"
+spec:
+  selector:
+    matchLabels:
+      app: goserver
+  replicas: 1
+  template:
+    metadata:
+      name: "goserver"
+      labels:
+        app: "goserver"
+    spec:
+      containers:
+      - name: goserver
+        image: "mrpsousa/api-go-expert:latest"
+        ports:
+          - containerPort: 8000
+        env:
+          - name: DB_DRIVER
+            value: "mysql"
+          - name: DB_HOST
+            value: "localhost"
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_USER
+            value: "root"
+          - name: DB_PASSWORD
+            value: "root"
+          - name: DB_NAME
+            value: "fullcycle"
+          - name: WEB_SERVER_PORT
+            value: "8000"
+          - name: JWT_SECRET
+            value: "secret"
+          - name: JWT_EXPIRESIN
+            value: "300"
+      tolerations:
+      - key: node.kubernetes.io/not-ready
+        operator: Exists
+        effect: NoSchedule
