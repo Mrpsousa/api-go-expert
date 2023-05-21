@@ -77,7 +77,8 @@ func main() {
 		r.Post("/generate_token", userHandler.GetJWT)
 	})
 
-	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
+	// r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://24.199.69.137/docs/doc.json")))
 
 	http.ListenAndServe(":8000", r)
 }
