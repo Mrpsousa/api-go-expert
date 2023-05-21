@@ -24,31 +24,11 @@ spec:
         ports:
           - containerPort: 8000
         
-        # env:
-        #   - name: DB_DRIVER
-        #     value: "mysql"
-        #   - name: DB_HOST
-        #     value: "localhost"
-        #   - name: DB_PORT
-        #     value: "3306"
-        #   - name: DB_USER
-        #     value: "root"
-        #   - name: DB_PASSWORD
-        #     value: "root"
-        #   - name: DB_NAME
-        #     value: "fullcycle"
-        #   - name: WEB_SERVER_PORT
-        #     value: "8000"
-        #   - name: JWT_SECRET
-        #     value: "secret"
-        #   - name: JWT_EXPIRESIN
-        #     value: "300"
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: goserver
+  name: goserver-web
 spec:
   selector: 
     app: goserver
