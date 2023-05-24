@@ -18,6 +18,14 @@ spec:
       containers:
       - name: goserver
         image: mrpsousa/api-go-expert
+
+        resources:
+          cpu: 200m
+          memory: 20Mi
+        limits:
+          cpu: 500m
+          memory: 25Mi
+
         livenessProbe:
           httpGet:
             path: /ping
@@ -26,7 +34,6 @@ spec:
           failureThreshold: 3
           timeoutSeconds: 1
           successThreshold: 1
-
         envFrom:
           - secretRef:
               name: goserver-secret
