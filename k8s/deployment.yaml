@@ -20,11 +20,12 @@ spec:
         image: mrpsousa/api-go-expert
 
         resources:
-          cpu: 200m
-          memory: 20Mi
-        limits:
-          cpu: 500m
-          memory: 25Mi
+          requests:  
+            cpu: 200m
+            memory: 20Mi
+          limits:
+            cpu: 500m
+            memory: 25Mi
 
         livenessProbe:
           httpGet:
