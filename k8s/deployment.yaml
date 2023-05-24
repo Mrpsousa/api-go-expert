@@ -18,6 +18,12 @@ spec:
       containers:
       - name: goserver
         image: mrpsousa/api-go-expert
+        livenessProbe:
+          path: /ping
+          port: 8000
+        periodSeconds: 5
+        failureThreshold: 1
+
         envFrom:
           - secretRef:
               name: goserver-secret

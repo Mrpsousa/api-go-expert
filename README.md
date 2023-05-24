@@ -1,5 +1,8 @@
 # api-go-expert
 
+## Health Check
+    http://localhost:8000/ping
+    
 ## Swagger
     - http://localhost:8000/docs/index.html
 
