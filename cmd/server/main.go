@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/middleware"
@@ -16,6 +18,9 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // @title           Go Expert API Example
@@ -46,6 +51,21 @@ func main() {
 
 	// println(config.DBDriver)
 
+	configk8s, err := clientcmd.BuildConfigFromFlags("", "<path-to-kubeconfig-file>")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	clientset, err := kubernetes.NewForConfig(configk8s)
+	if err != nil {
+		panic(err.Error())
+	}
+	service, err := clientset.CoreV1().Services("<namespace>").Get(context.TODO(), "<service-name>", metav1.GetOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+
+	externalIP := service.Status.LoadBalancer.Ingress[0].IP
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -78,7 +98,7 @@ func main() {
 	})
 
 	// r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
-	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://24.199.69.137/docs/doc.json")))
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(fmt.Sprintf("http://%v/docs/doc.json", externalIP))))
 	r.Get("/ping", handlers.Healthz)
 	http.ListenAndServe(":8000", r)
 }
