@@ -84,11 +84,14 @@ func (h *UserHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	_, token, _ := h.Jwt.Encode(map[string]interface{}{
+	_, token, err := h.Jwt.Encode(map[string]interface{}{
 		"sub": u.ID.String(),
 		"exp": time.Now().Add(time.Second * time.Duration(h.JwtExpiresIn)).Unix(),
 	})
-
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	accessToken := dto.GetJWTOutput{AccessToken: token}
 
 	w.Header().Set("Content-Type", "application/json")
