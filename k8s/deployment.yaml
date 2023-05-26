@@ -80,3 +80,21 @@ data:
   WEB_SERVER_PORT: "ODAwMAo="
   JWT_SECRET: "c2VjcmV0Cg=="
   JWT_EXPIRESIN: "MzAwCg=="
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-host
+  annotations:
+    kubernetes.io/ingress.class: "ngnix"
+spec:
+  rules:
+  - host: "ingress.fullcycle.com.br"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend: 
+          serviceName: goserver-service
+          servicePort: 8000

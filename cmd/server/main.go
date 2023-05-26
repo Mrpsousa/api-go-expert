@@ -77,8 +77,8 @@ func main() {
 		r.Post("/generate_token", userHandler.GetJWT)
 	})
 
-	// r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
-	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://137.184.246.121/docs/doc.json")))
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
+	// r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://137.184.246.121/docs/doc.json")))
 	r.Get("/ping", handlers.Healthz)
 	http.ListenAndServe(":8000", r)
 }
