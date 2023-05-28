@@ -1,10 +1,12 @@
 package configs
 
 import (
+	"log"
 	"os"
 	"strconv"
 
 	"github.com/go-chi/jwtauth"
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -43,6 +45,10 @@ func LoadConfig(path string) (*Conf, error) {
 }
 
 func NewConfig() *Conf {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	expires, _ := strconv.Atoi((os.Getenv("JWT_EXPIRESIN")))
 	return &Conf{
 		DBDriver:      os.Getenv("DB_DRIVER"),
@@ -53,5 +59,6 @@ func NewConfig() *Conf {
 		DBName:        os.Getenv("DB_NAME"),
 		WebServerPort: os.Getenv("WEB_SERVER_PORT"),
 		JWTSecret:     os.Getenv("JWT_SECRET"),
+		TokenAuth:     jwtauth.New("HS256", []byte(os.Getenv("JWT_SECRET")), nil),
 		JWTExpiresIn:  expires}
 }
