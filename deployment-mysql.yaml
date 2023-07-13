@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "goserver-mysql"
+spec:
+  selector:
+    matchLabels:
+      app: goserver-mysql
+  template:
+    metadata:
+      labels:
+        app: goserver-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        ports:
+        - containerPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: "root"
+          - name: MYSQL_DATABASE
+            value: "goserver_service"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: goserver-mysql
+spec:
+  selector:
+    app: goserver-mysql
+  ports:
+  - port: 3306
+  type: ClusterIP
