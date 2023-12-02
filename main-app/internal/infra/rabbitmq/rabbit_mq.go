@@ -6,9 +6,6 @@ import (
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
-// address="amqp://guest:guest@localhost"
-// exchange="events"
-// routing_key="product"
 type RabbitMq struct {
 	RMqConn *rabbitmq.Conn
 }
