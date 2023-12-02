@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -9,16 +11,29 @@ import (
 	"github.com/mrpsousa/api/internal/dto"
 	"github.com/mrpsousa/api/internal/entity"
 	"github.com/mrpsousa/api/internal/infra/database"
+	rb "github.com/mrpsousa/api/internal/infra/rabbitmq"
+
 	entityPkg "github.com/mrpsousa/api/pkg/entity"
+)
+
+const (
+	exchange    = "mysqlEx"
+	routing_key = "product"
 )
 
 type ProductHandler struct {
 	ProductDB database.ProductInterface
+	RabbitMq  *rb.RabbitMq
 }
 
-func NewProductHandler(db database.ProductInterface) *ProductHandler {
+func NewProductHandler(db database.ProductInterface, rmq_adress string) *ProductHandler {
+	conn, err := rb.NewRabbitMq(rmq_adress)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &ProductHandler{
 		ProductDB: db,
+		RabbitMq:  conn,
 	}
 }
 
@@ -45,6 +60,8 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	fmt.Println(p.Name)
+	h.RabbitMq.Publisher(exchange, routing_key, p.Name)
 	err = h.ProductDB.Create(p)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

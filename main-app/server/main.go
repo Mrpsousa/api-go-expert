@@ -18,6 +18,10 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	rmq_adress = "amqp://guest:guest@localhost"
+)
+
 // @title           Go Expert API Example
 // @version         1.0
 // @description     Product API with auhtentication
@@ -53,7 +57,7 @@ func main() {
 
 	db.AutoMigrate(&entity.Product{}, &entity.User{})
 	productDB := database.NewProduct(db)
-	productHandler := handlers.NewProductHandler(productDB)
+	productHandler := handlers.NewProductHandler(productDB, rmq_adress)
 	userDB := database.NewUser(db)
 	userHandler := handlers.NewUserHandler(userDB, config.TokenAuth, config.JWTExpiresIn)
 
