@@ -49,6 +49,13 @@ func NewProductHandler(db database.ProductInterface, rmq_adress string) *Product
 // @Router       /products [post]
 // @Security ApiKeyAuth
 func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
+	type Person struct {
+		Name  string `json:"name"`
+		Age   int    `json:"age"`
+		City  string `json:"city"`
+		Email string `json:"email,omitempty"`
+	}
+
 	var product dto.CreateProductInput
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
@@ -60,8 +67,14 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(p.Name)
-	h.RabbitMq.Publisher(exchange, routing_key, p.Name)
+
+	jsonString, err := json.Marshal(p)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	h.RabbitMq.Publisher(exchange, routing_key, string(jsonString))
 	err = h.ProductDB.Create(p)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
