@@ -55,9 +55,8 @@ func main() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&entity.Product{}, &entity.User{})
-	productDB := database.NewProduct(db)
-	productHandler := handlers.NewProductHandler(productDB, rmq_adress)
+	db.AutoMigrate(&entity.User{})
+	productHandler := handlers.NewProductHandler(rmq_adress)
 	userDB := database.NewUser(db)
 	userHandler := handlers.NewUserHandler(userDB, config.TokenAuth, config.JWTExpiresIn)
 
@@ -69,11 +68,8 @@ func main() {
 	r.Route("/products", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(config.TokenAuth)) // get the token and inject it into the context
 		r.Use(jwtauth.Authenticator)              // validate of token
-		r.Post("/", productHandler.CreateProduct)
-		r.Get("/{id}", productHandler.GetProduct)
-		r.Get("/", productHandler.GetProducts)
-		r.Put("/{id}", productHandler.UpdateProduct)
-		r.Delete("/{id}", productHandler.DeleteProduct)
+		r.Post("/", productHandler.PublishProduct)
+
 	})
 
 	r.Route("/users", func(r chi.Router) {

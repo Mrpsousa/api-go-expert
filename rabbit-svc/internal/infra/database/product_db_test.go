@@ -5,10 +5,21 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/mrpsousa/api/internal/entity"
-	"github.com/mrpsousa/api/internal/infra/database"
+	"svc/rabbitMq.com/internal/entity"
+	"svc/rabbitMq.com/internal/infra/database"
+
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
+
+func returnDBInstance() (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
 
 func TestCreateProduct(t *testing.T) {
 	db, err := returnDBInstance()

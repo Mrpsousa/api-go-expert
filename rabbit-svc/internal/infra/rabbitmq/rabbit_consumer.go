@@ -3,14 +3,17 @@ package rabbitmq
 import (
 	"log"
 
+	"svc/rabbitMq.com/internal/infra/database"
+
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
 type RabbitMq struct {
-	RMqConn *rabbitmq.Conn
+	RMqConn   *rabbitmq.Conn
+	ProductDB database.ProductInterface
 }
 
-func NewRabbitMq(address string) (*RabbitMq, error) {
+func NewRabbitMq(address string, db database.ProductInterface) (*RabbitMq, error) {
 	conn, err := rabbitmq.NewConn(
 		address,
 		rabbitmq.WithConnectionOptionsLogging,
@@ -19,7 +22,8 @@ func NewRabbitMq(address string) (*RabbitMq, error) {
 		log.Fatal(err)
 	}
 
-	return &RabbitMq{RMqConn: conn}, nil
+	return &RabbitMq{RMqConn: conn,
+		ProductDB: db}, nil
 }
 
 func (r *RabbitMq) Consumer(exchange, queueName, routingKey string) {

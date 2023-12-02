@@ -1,7 +1,8 @@
 package database
 
 import (
-	"github.com/mrpsousa/api/internal/entity"
+	"svc/rabbitMq.com/internal/entity"
+
 	"gorm.io/gorm"
 )
 
