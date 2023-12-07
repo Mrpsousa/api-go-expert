@@ -41,12 +41,12 @@ func NewProductHandler(rmq_adress string) *ProductHandler {
 // @Router       /products [post]
 // @Security ApiKeyAuth
 func (h *ProductHandler) PublishProduct(w http.ResponseWriter, r *http.Request) {
-	type Person struct {
-		Name  string `json:"name"`
-		Age   int    `json:"age"`
-		City  string `json:"city"`
-		Email string `json:"email,omitempty"`
-	}
+	// type Person struct {
+	// 	Name  string `json:"name"`
+	// 	Age   int    `json:"age"`
+	// 	City  string `json:"city"`
+	// 	Email string `json:"email,omitempty"`
+	// }
 
 	var product dto.CreateProductInput
 	err := json.NewDecoder(r.Body).Decode(&product)
