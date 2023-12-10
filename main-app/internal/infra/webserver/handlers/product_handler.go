@@ -7,7 +7,7 @@ import (
 
 	"github.com/mrpsousa/api/internal/dto"
 	"github.com/mrpsousa/api/internal/entity"
-	rb "github.com/mrpsousa/api/internal/infra/rabbitmq"
+	"github.com/mrpsousa/api/internal/infra/rabbitmq"
 )
 
 const (
@@ -16,16 +16,19 @@ const (
 )
 
 type ProductHandler struct {
-	RabbitMq *rb.RabbitMq
+	Rabbit rabbitmq.RabbitCHInterface
 }
 
-func NewProductHandler(rmq_adress string) *ProductHandler {
-	conn, err := rb.NewRabbitMq(rmq_adress)
-	if err != nil {
-		log.Fatal(err)
-	}
+func NewProductHandler(rabbit rabbitmq.RabbitCHInterface) *ProductHandler {
+
 	return &ProductHandler{
-		RabbitMq: conn,
+		Rabbit: rabbit,
+	}
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
 	}
 }
 
@@ -41,13 +44,6 @@ func NewProductHandler(rmq_adress string) *ProductHandler {
 // @Router       /products [post]
 // @Security ApiKeyAuth
 func (h *ProductHandler) PublishProduct(w http.ResponseWriter, r *http.Request) {
-	// type Person struct {
-	// 	Name  string `json:"name"`
-	// 	Age   int    `json:"age"`
-	// 	City  string `json:"city"`
-	// 	Email string `json:"email,omitempty"`
-	// }
-
 	var product dto.CreateProductInput
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
@@ -60,17 +56,17 @@ func (h *ProductHandler) PublishProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	jsonString, err := json.Marshal(p)
+	productJsonString, err := json.Marshal(p)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	//TODO:_ this func must to return err
-	h.RabbitMq.Publisher(exchange, routing_key, string(jsonString))
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+	err = h.Rabbit.Publisher("mysqlEx", "product", productJsonString)
+
+	failOnError(err, "Failed to publish a message")
+
 	w.WriteHeader(http.StatusOK)
 }
+
+// body := "Hello World!"

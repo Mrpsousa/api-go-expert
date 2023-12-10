@@ -5,17 +5,21 @@ import (
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth"
 
 	"github.com/mrpsousa/api/configs"
 	_ "github.com/mrpsousa/api/docs"
 	"github.com/mrpsousa/api/internal/entity"
 	"github.com/mrpsousa/api/internal/infra/database"
+	rb "github.com/mrpsousa/api/internal/infra/rabbitmq"
 	"github.com/mrpsousa/api/internal/infra/webserver/handlers"
 	"github.com/mrpsousa/api/pkg/middlewares"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"log"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -40,23 +44,31 @@ const (
 // @in header
 // @name Authorization
 
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
+}
+
 func main() {
-	// config, err := configs.LoadConfig(".")
-	// if err != nil {
-	// 	panic(err)
-	// }
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
 
 	config := configs.NewConfig()
-
-	// println(config.DBDriver)
 
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 
+	rabbit := rb.NewRabbit(ch)
 	db.AutoMigrate(&entity.User{})
-	productHandler := handlers.NewProductHandler(rmq_adress)
+	productHandler := handlers.NewProductHandler(rabbit)
 	userDB := database.NewUser(db)
 	userHandler := handlers.NewUserHandler(userDB, config.TokenAuth, config.JWTExpiresIn)
 
@@ -66,8 +78,8 @@ func main() {
 	r.Use(middlewares.LogRequest)
 
 	r.Route("/products", func(r chi.Router) {
-		r.Use(jwtauth.Verifier(config.TokenAuth)) // get the token and inject it into the context
-		r.Use(jwtauth.Authenticator)              // validate of token
+		// 	r.Use(jwtauth.Verifier(config.TokenAuth)) // get the token and inject it into the context
+		// 	r.Use(jwtauth.Authenticator)              // validate of token
 		r.Post("/", productHandler.PublishProduct)
 
 	})

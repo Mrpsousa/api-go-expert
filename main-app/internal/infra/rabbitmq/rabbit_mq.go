@@ -1,48 +1,30 @@
 package rabbitmq
 
 import (
-	"log"
+	"context"
 
-	rabbitmq "github.com/wagslane/go-rabbitmq"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RabbitMq struct {
-	RMqConn *rabbitmq.Conn
+type Rabbit struct {
+	Ch *amqp.Channel
 }
 
-func NewRabbitMq(address string) (*RabbitMq, error) {
-	conn, err := rabbitmq.NewConn(
-		address,
-		rabbitmq.WithConnectionOptionsLogging,
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return &RabbitMq{RMqConn: conn}, nil
+func NewRabbit(ch *amqp.Channel) *Rabbit {
+	return &Rabbit{Ch: ch}
 }
 
-func (r *RabbitMq) Publisher(exchange, routing_key, msq string) {
-	defer r.RMqConn.Close()
+func (rb *Rabbit) Publisher(eX, routKey string, productJsonString []byte) error {
 
-	publisher, err := rabbitmq.NewPublisher(
-		r.RMqConn,
-		rabbitmq.WithPublisherOptionsLogging,
-		rabbitmq.WithPublisherOptionsExchangeName(exchange),
-		rabbitmq.WithPublisherOptionsExchangeDeclare,
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer publisher.Close()
+	err := rb.Ch.PublishWithContext(context.TODO(),
+		eX,      // exchange
+		routKey, // routing key
+		false,   // ch
+		false,   // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        productJsonString,
+		})
 
-	err = publisher.Publish(
-		[]byte(msq),
-		[]string{routing_key},
-		rabbitmq.WithPublishOptionsContentType("application/json"),
-		rabbitmq.WithPublishOptionsExchange(exchange),
-	)
-	if err != nil {
-		log.Println(err)
-	}
+	return err
 }
