@@ -43,26 +43,26 @@ func failOnError(err error, msg string) {
 // @Failure      500         {object}  Error
 // @Router       /products [post]
 // @Security ApiKeyAuth
-func (h *ProductHandler) PublishProduct(w http.ResponseWriter, r *http.Request) {
+func (ph *ProductHandler) PublishProduct(w http.ResponseWriter, r *http.Request) {
 	var product dto.CreateProductInput
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	p, err := entity.NewProduct(product.Name, product.Price)
+	productResp, err := entity.NewProduct(product.Name, product.Price)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	productJsonString, err := json.Marshal(p)
+	productJsonString, err := json.Marshal(productResp)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	err = h.Rabbit.Publisher("mysqlEx", "product", productJsonString)
+	err = ph.Rabbit.Publisher("mysqlEx", "product", productJsonString)
 
 	failOnError(err, "Failed to publish a message")
 

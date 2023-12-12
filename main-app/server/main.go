@@ -50,13 +50,25 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func main() {
+func PrepareAmqp() (*amqp.Connection, *amqp.Channel, error) {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
+	if err != nil {
+		return nil, nil, err
+	}
 
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return conn, ch, nil
+}
+
+func main() {
+	conn, ch, err := PrepareAmqp()
+	failOnError(err, "Failed to connect to RabbitMQ")
+
+	defer conn.Close()
 	defer ch.Close()
 
 	config := configs.NewConfig()
