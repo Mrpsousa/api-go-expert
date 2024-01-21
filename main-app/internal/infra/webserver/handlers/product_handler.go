@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/mrpsousa/api/internal/dto"
 	"github.com/mrpsousa/api/internal/entity"
 	"github.com/mrpsousa/api/internal/infra/rabbitmq"
+	lg "github.com/mrpsousa/api/pkg/log"
 )
 
 const (
@@ -20,7 +22,6 @@ type ProductHandler struct {
 }
 
 func NewProductHandler(rabbit rabbitmq.RabbitCHInterface) *ProductHandler {
-
 	return &ProductHandler{
 		Rabbit: rabbit,
 	}
@@ -61,12 +62,17 @@ func (ph *ProductHandler) PublishProduct(w http.ResponseWriter, r *http.Request)
 		log.Fatal(err)
 		return
 	}
-
 	err = ph.Rabbit.Publisher("mysqlEx", "product", productJsonString)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatal(err)
+		return
+	}
+
+	lg.LogMessage("PublishProduct", "AJUSTAR LOG COM CALMA", false)
 
 	failOnError(err, "Failed to publish a message")
 
 	w.WriteHeader(http.StatusOK)
 }
-
-// body := "Hello World!"

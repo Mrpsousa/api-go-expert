@@ -18,8 +18,6 @@ import (
 	"gorm.io/gorm"
 
 	"log"
-
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -50,23 +48,13 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func PrepareAmqp() (*amqp.Connection, *amqp.Channel, error) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return conn, ch, nil
-}
-
 func main() {
-	conn, ch, err := PrepareAmqp()
-	failOnError(err, "Failed to connect to RabbitMQ")
+	conn, ch, err := rb.PrepareAmqp()
+	if err != nil {
+		if err != nil {
+			panic("Failed to connect to RabbitMQ")
+		}
+	}
 
 	defer conn.Close()
 	defer ch.Close()
